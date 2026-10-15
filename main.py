@@ -3,7 +3,7 @@ import pandas as pd
 import plotly.graph_objects as go
 
 # -----------------------------------------------------------------------------
-# 1. 페이지 설정 및 디자인 (따뜻한 톤)
+# 1. 페이지 설정 및 디자인
 # -----------------------------------------------------------------------------
 st.set_page_config(
     page_title="우리 동네 인구 피라미드",
@@ -11,25 +11,8 @@ st.set_page_config(
     layout="wide"
 )
 
-# 따뜻한 느낌의 CSS 스타일 적용
-st.markdown("""
-    <style>
-    .main {
-        background-color: #FFFDF9;
-    }
-    h1 {
-        color: #8B4513;
-        font-family: 'Nanum Gothic', sans-serif;
-    }
-    .stSelectbox label {
-        color: #5C4033 !important;
-        font-weight: bold;
-    }
-    </style>
-""", unsafe_allow_unsafe_html=True)
-
 st.title("🏘️ 우리 동네 인구 피라미드")
-st.write("우리 동네의 나이별, 성별 인구 구조를 따뜻한 시선으로 살펴봅니다.")
+st.write("우리 동네의 나이별, 성별 인구 구조를 살펴봅니다.")
 st.markdown("---")
 
 # -----------------------------------------------------------------------------
@@ -95,7 +78,6 @@ for age in age_labels:
     m_col = f"남_{age}"
     f_col = f"여_{age}"
     
-    # 해당 열의 값이 없으면 0 처리
     m_val = target_row[m_col] if m_col in target_row else 0
     f_val = target_row[f_col] if f_col in target_row else 0
     
@@ -117,7 +99,6 @@ fig.add_trace(go.Bar(
     name='남성',
     orientation='h',
     hoverinfo='text',
-    # 호버(마우스 올렸을 때) 시 음수가 아닌 실제 인구수 표시
     text=[f"남성 ({age}): {abs(val):,}명" for age, val in zip(age_labels, male_pop)],
     marker=dict(color='#6C9BCF')
 ))
@@ -142,8 +123,6 @@ fig.update_layout(
     barmode='relative',
     bargap=0.1,
     height=800,
-    paper_bgcolor='rgba(0,0,0,0)',
-    plot_bgcolor='rgba(255,253,249,1)',
     legend=dict(
         orientation="h",
         yanchor="bottom",
@@ -151,7 +130,6 @@ fig.update_layout(
         xanchor="right",
         x=1
     ),
-    # X축: 음수 눈금을 양수로 표시하고 천 단위 쉼표 적용
     xaxis=dict(
         title="인구수 (명)",
         tickformat=",d",
@@ -160,12 +138,11 @@ fig.update_layout(
         ticktext=[f"{abs(x):,}" for x in range(0, max(max(male_pop), max(female_pop)) + 1, 100 if max(max(male_pop), max(female_pop)) < 1000 else 500)] + 
                  [f"{x:,}" for x in range(0, max(max(male_pop), max(female_pop)) + 1, 100 if max(max(male_pop), max(female_pop)) < 1000 else 500)]
     ),
-    # Y축: 순서를 뒤집지 않고 age_labels 배열 순서 그대로 0세가 맨 아래에 위치하도록 지정
     yaxis=dict(
         title="연령",
         type='category',
         categoryorder='array',
-        categoryarray=age_labels,  # 0세 -> 100세 이상 순서 고정 (0세가 최하단)
+        categoryarray=age_labels,
         autorange=True
     )
 )
